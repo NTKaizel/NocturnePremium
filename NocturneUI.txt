@@ -1,0 +1,112 @@
+--[[
+    Nocturne UI
+    By: Kaizel
+    Note: Beberapa fungsi kosong, isi sesuai kebutuhanmu
+]]
+
+-- Load UI Library (Rayfield)
+local Nocturne = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Window Utama
+local MainUI = Nocturne:CreateWindow({
+    Name = "Nocturne Premium",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by Kaizel",
+    ConfigurationSaving = { Enabled = false }
+})
+
+-- AUTO FISH
+local AutoFishTab = MainUI:CreateTab("Auto Fish", 4483362458)
+AutoFishTab:CreateToggle({
+    Name = "Enable Auto Fish",
+    CurrentValue = false,
+    Flag = "AutoFish",
+    Callback = function(Value)
+        print("Auto Fish: "..tostring(Value))
+        -- isi script auto fish di sini
+    end
+})
+
+-- AUTO FARM
+local AutoFarmTab = MainUI:CreateTab("Auto Farm", 4483362458)
+AutoFarmTab:CreateToggle({
+    Name = "Enable Auto Farm",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Auto Farm: "..tostring(Value))
+        -- isi script auto farm di sini
+    end
+})
+
+-- AUTO WEATHER
+local AutoWeatherTab = MainUI:CreateTab("Auto Weather", 4483362458)
+AutoWeatherTab:CreateToggle({
+    Name = "Enable Auto Weather",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Auto Weather: "..tostring(Value))
+        -- isi script auto weather di sini
+    end
+})
+
+-- TRADE
+local TradeTab = MainUI:CreateTab("Trade", 4483362458)
+TradeTab:CreateInput({
+    Name = "Trade with Player",
+    PlaceholderText = "e.g. Player123",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        print("Trading with: "..Text)
+        -- isi script trade di sini
+    end
+})
+
+-- PLAYER MENU
+local PlayerTab = MainUI:CreateTab("Player", 4483362458)
+PlayerTab:CreateSlider({
+    Name = "Walk Speed",
+    Range = {16, 200},
+    Increment = 1,
+    CurrentValue = 16,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
+})
+PlayerTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Infinite Jump: "..tostring(Value))
+        -- isi script infinite jump di sini
+    end
+})
+
+-- UTILITY / BUG COINS
+local UtilityTab = MainUI:CreateTab("Utility", 4483362458)
+UtilityTab:CreateSection("WARNING!!\nBUG COINS RISK BANNED!!\nLevel 20+ & Empty Bag Recommended")
+UtilityTab:CreateInput({
+    Name = "Bug Coins Target Player",
+    PlaceholderText = "e.g. Player123",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        print("Bug coins target: "..Text)
+        -- isi script bug coins di sini
+    end
+})
+UtilityTab:CreateToggle({
+    Name = "Enable Bug Coins",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Bug Coins Enabled: "..tostring(Value))
+        -- isi script bug coins di sini
+    end
+})
+
+-- SETTINGS
+local SettingsTab = MainUI:CreateTab("Settings", 4483362458)
+SettingsTab:CreateButton({
+    Name = "Destroy UI",
+    Callback = function()
+        Nocturne:Destroy()
+    end
+})
