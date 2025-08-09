@@ -1,10 +1,9 @@
--- NocturneUI Test
--- Buat UI
+-- NocturneUI with AutoFish for Fish IT
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "NocturneUI"
 ScreenGui.Parent = game.CoreGui
 
--- Frame utama
+-- Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 200)
 MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
@@ -14,7 +13,7 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- Judul
+-- Title
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -60, 0, 30)
 Title.Position = UDim2.new(0, 10, 0, 0)
@@ -26,7 +25,7 @@ Title.Font = Enum.Font.SourceSansBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = MainFrame
 
--- Tombol Close
+-- Close Button
 local CloseButton = Instance.new("TextButton")
 CloseButton.Size = UDim2.new(0, 30, 0, 30)
 CloseButton.Position = UDim2.new(1, -35, 0, 0)
@@ -37,7 +36,7 @@ CloseButton.TextSize = 18
 CloseButton.Font = Enum.Font.SourceSansBold
 CloseButton.Parent = MainFrame
 
--- Tombol Minimize
+-- Minimize Button
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
 MinimizeButton.Position = UDim2.new(1, -70, 0, 0)
@@ -48,28 +47,77 @@ MinimizeButton.TextSize = 18
 MinimizeButton.Font = Enum.Font.SourceSansBold
 MinimizeButton.Parent = MainFrame
 
--- State minimize
-local Minimized = false
+-- AutoFish Button
+local AutoFishBtn = Instance.new("TextButton")
+AutoFishBtn.Size = UDim2.new(1, -20, 0, 40)
+AutoFishBtn.Position = UDim2.new(0, 10, 0, 50)
+AutoFishBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
+AutoFishBtn.Text = "Start AutoFish"
+AutoFishBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoFishBtn.TextSize = 18
+AutoFishBtn.Font = Enum.Font.SourceSansBold
+AutoFishBtn.Parent = MainFrame
 
--- Event Minimize
+-- Minimize Logic
+local Minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     Minimized = not Minimized
-    if Minimized then
-        for _, v in pairs(MainFrame:GetChildren()) do
-            if v ~= Title and v ~= MinimizeButton and v ~= CloseButton then
-                v.Visible = false
-            end
+    for _, v in pairs(MainFrame:GetChildren()) do
+        if v ~= Title and v ~= MinimizeButton and v ~= CloseButton then
+            v.Visible = not Minimized
         end
-        MainFrame.Size = UDim2.new(0, 300, 0, 30)
-    else
-        for _, v in pairs(MainFrame:GetChildren()) do
-            v.Visible = true
-        end
-        MainFrame.Size = UDim2.new(0, 300, 0, 200)
     end
+    MainFrame.Size = Minimized and UDim2.new(0, 300, 0, 30) or UDim2.new(0, 300, 0, 200)
 end)
 
--- Event Close
+-- Close Logic
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
+end)
+
+-- AutoFish Variables
+local autoFishRunning = false
+local fishingRemote
+
+-- Function to scan fishing remote
+local function findFishingRemote()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+            if string.find(string.lower(v.Name), "fish") or string.find(string.lower(v.Name), "rod") or string.find(string.lower(v.Name), "catch") then
+                return v
+            end
+        end
+    end
+    return nil
+end
+
+-- Function AutoFish
+local function autoFishLoop()
+    while autoFishRunning and fishingRemote do
+        task.wait(0.2)
+        pcall(function()
+            -- Kirim full cast dan skip animasi (parameternya mungkin perlu disesuaikan)
+            fishingRemote:FireServer("Cast", 1) -- 1 untuk full power
+            fishingRemote:FireServer("Catch", "Perfect") -- langsung perfect catch
+        end)
+    end
+end
+
+-- AutoFish Button Logic
+AutoFishBtn.MouseButton1Click:Connect(function()
+    autoFishRunning = not autoFishRunning
+    if autoFishRunning then
+        AutoFishBtn.Text = "Stop AutoFish"
+        fishingRemote = findFishingRemote()
+        if fishingRemote then
+            print("[NocturneUI] Fishing Remote found:", fishingRemote.Name)
+            task.spawn(autoFishLoop)
+        else
+            print("[NocturneUI] Fishing Remote not found!")
+            autoFishRunning = false
+            AutoFishBtn.Text = "Start AutoFish"
+        end
+    else
+        AutoFishBtn.Text = "Start AutoFish"
+    end
 end)
