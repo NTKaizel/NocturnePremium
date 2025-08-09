@@ -1,143 +1,150 @@
--- NocturneUI Kerangka
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+--[[
+    Nocturne UI
+    By: Kaizel
+    Note: Infinite Jump, Anti-AFK, Auto Fish siap pakai (tinggal isi nama event & argumen)
+]]
 
--- GUI utama
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "NocturneUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
+-- Load UI Library (Rayfield)
+local Nocturne = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Frame utama
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
+-- Window Utama
+local MainUI = Nocturne:CreateWindow({
+    Name = "Nocturne Premium",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by Kaizel",
+    ConfigurationSaving = { Enabled = false }
+})
 
--- Title bar
-local TitleBar = Instance.new("Frame")
-TitleBar.Size = UDim2.new(1, 0, 0, 35)
-TitleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-TitleBar.Parent = MainFrame
+-- Variabel untuk Auto Fish
+local AutoFishEnabled = false
+local AutoFishLoop
 
-local TitleText = Instance.new("TextLabel")
-TitleText.Size = UDim2.new(1, -70, 1, 0)
-TitleText.Position = UDim2.new(0, 10, 0, 0)
-TitleText.BackgroundTransparency = 1
-TitleText.Text = "NocturneUI Premium"
-TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleText.TextSize = 18
-TitleText.Font = Enum.Font.SourceSansBold
-TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.Parent = TitleBar
+-- AUTO FISH TAB
+local AutoFishTab = MainUI:CreateTab("Auto Fish", 4483362458)
+AutoFishTab:CreateToggle({
+    Name = "Enable Auto Fish",
+    CurrentValue = false,
+    Flag = "AutoFish",
+    Callback = function(Value)
+        AutoFishEnabled = Value
+        print("Auto Fish: "..tostring(Value))
 
--- Close button
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 30, 1, 0)
-CloseBtn.Position = UDim2.new(1, -35, 0, 0)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.SourceSansBold
-CloseBtn.TextSize = 18
-CloseBtn.Parent = TitleBar
-
--- Minimize button
-local MinBtn = Instance.new("TextButton")
-MinBtn.Size = UDim2.new(0, 30, 1, 0)
-MinBtn.Position = UDim2.new(1, -70, 0, 0)
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
-MinBtn.Text = "-"
-MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinBtn.Font = Enum.Font.SourceSansBold
-MinBtn.TextSize = 18
-MinBtn.Parent = TitleBar
-
--- Sidebar
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 140, 1, -35)
-Sidebar.Position = UDim2.new(0, 0, 0, 35)
-Sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Sidebar.Parent = MainFrame
-
--- Konten
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(1, -140, 1, -35)
-ContentFrame.Position = UDim2.new(0, 140, 0, 35)
-ContentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-ContentFrame.Parent = MainFrame
-
--- Tombol menu
-local menuItems = {
-    "Auto Fish", "Auto Farm", "Auto Weather", "Trade", "Player", "Utility", "Settings"
-}
-
-local Buttons = {}
-
-for i, name in ipairs(menuItems) do
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, 0, 0, 35)
-    Btn.Position = UDim2.new(0, 0, 0, (i - 1) * 37)
-    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Btn.Text = name
-    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Btn.Font = Enum.Font.SourceSansBold
-    Btn.TextSize = 16
-    Btn.Parent = Sidebar
-    Buttons[name] = Btn
-
-    Btn.MouseButton1Click:Connect(function()
-        for _, v in pairs(ContentFrame:GetChildren()) do
-            if v:IsA("Frame") then v.Visible = false end
+        if AutoFishEnabled then
+            AutoFishLoop = task.spawn(function()
+                while AutoFishEnabled do
+                    pcall(function()
+                        -- Ganti sesuai nama RemoteEvent di game kamu
+                        local fishingEvent = game:GetService("ReplicatedStorage"):WaitForChild("FishingEvent") 
+                        local args = {
+                            "CastLine", -- contoh argumen
+                            math.random(1,100) -- contoh tambahan, ubah sesuai kebutuhan
+                        }
+                        fishingEvent:FireServer(unpack(args))
+                        print("[Auto Fish] Casting fishing line...")
+                    end)
+                    task.wait(3) -- Delay antar cast (atur sesuai kebutuhan)
+                end
+            end)
+        else
+            if AutoFishLoop then
+                task.cancel(AutoFishLoop)
+                AutoFishLoop = nil
+            end
         end
-        if ContentFrame:FindFirstChild(name) then
-            ContentFrame[name].Visible = true
+    end
+})
+
+-- AUTO WEATHER
+local AutoWeatherTab = MainUI:CreateTab("Auto Weather", 4483362458)
+AutoWeatherTab:CreateToggle({
+    Name = "Enable Auto Weather",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Auto Weather: "..tostring(Value))
+        -- isi script auto weather di sini
+    end
+})
+
+-- TRADE
+local TradeTab = MainUI:CreateTab("Trade", 4483362458)
+TradeTab:CreateInput({
+    Name = "Trade with Player",
+    PlaceholderText = "e.g. Player123",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        print("Trading with: "..Text)
+        -- isi script trade di sini
+    end
+})
+
+-- PLAYER MENU
+local PlayerTab = MainUI:CreateTab("Player", 4483362458)
+PlayerTab:CreateSlider({
+    Name = "Walk Speed",
+    Range = {16, 200},
+    Increment = 1,
+    CurrentValue = 16,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
+})
+
+-- Infinite Jump Toggle
+local InfiniteJumpEnabled = false
+PlayerTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Value)
+        InfiniteJumpEnabled = Value
+        print("Infinite Jump: "..tostring(Value))
+    end
+})
+
+-- Infinite Jump Handler
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfiniteJumpEnabled then
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChildOfClass("Humanoid") then
+            char:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
         end
-    end)
-end
-
--- Buat frame kosong untuk tiap menu
-for _, name in ipairs(menuItems) do
-    local Page = Instance.new("Frame")
-    Page.Name = name
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.Visible = false
-    Page.Parent = ContentFrame
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, 0, 0, 30)
-    Label.BackgroundTransparency = 1
-    Label.Text = name .. " Page"
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 18
-    Label.Font = Enum.Font.SourceSansBold
-    Label.Parent = Page
-end
-
--- Default ke Auto Fish
-ContentFrame["Auto Fish"].Visible = true
-
--- Close logic
-CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
--- Minimize logic
-local Minimized = false
-MinBtn.MouseButton1Click:Connect(function()
-    Minimized = not Minimized
-    if Minimized then
-        Sidebar.Visible = false
-        ContentFrame.Visible = false
-        MainFrame.Size = UDim2.new(0, 500, 0, 35)
-    else
-        Sidebar.Visible = true
-        ContentFrame.Visible = true
-        MainFrame.Size = UDim2.new(0, 500, 0, 300)
     end
 end)
+
+-- Anti-AFK
+local vu = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    print("[Anti-AFK] Triggered to prevent kick.")
+end)
+
+-- UTILITY / BUG COINS
+local UtilityTab = MainUI:CreateTab("Utility", 4483362458)
+UtilityTab:CreateSection("WARNING!!\nBUG COINS RISK BANNED!!\nLevel 20+ & Empty Bag Recommended")
+UtilityTab:CreateInput({
+    Name = "Bug Coins Target Player",
+    PlaceholderText = "e.g. Player123",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        print("Bug coins target: "..Text)
+        -- isi script bug coins di sini
+    end
+})
+UtilityTab:CreateToggle({
+    Name = "Enable Bug Coins",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Bug Coins Enabled: "..tostring(Value))
+        -- isi script bug coins di sini
+    end
+})
+
+-- SETTINGS
+local SettingsTab = MainUI:CreateTab("Settings", 4483362458)
+SettingsTab:CreateButton({
+    Name = "Destroy UI",
+    Callback = function()
+        Nocturne:Destroy()
+    end
+})
